@@ -25,7 +25,9 @@ const Register = () => {
       navigate(from, { replace: true });
       e.target.reset();
     } catch (error) {
+      toast.error(error.message || "Login failed", { id: "login" });
       console.error(error);
+
 
       // Handle specific Firebase errors
       if (error.code === "auth/email-already-in-use") {

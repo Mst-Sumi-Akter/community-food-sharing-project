@@ -5,6 +5,7 @@ import { MdOutlineFoodBank } from "react-icons/md";
 import { LuHeartHandshake } from "react-icons/lu";
 import Spinner from "../components/Spinner";
 
+// CountUp Component
 const CountUp = ({ end, duration = 800 }) => {
   const [count, setCount] = useState(0);
 
@@ -25,9 +26,10 @@ const CountUp = ({ end, duration = 800 }) => {
     return () => clearInterval(interval);
   }, [end, duration]);
 
-  return <span className="text-3xl font-bold">{count}</span>;
+  return <span>{count}</span>;
 };
 
+// Profile Page
 const Profile = () => {
   const { user, loading } = useAuth();
 
@@ -76,9 +78,7 @@ const Profile = () => {
             className="w-32 h-32 rounded-full border-4 border-orange-400 object-cover"
           />
           <div className="text-center md:text-left flex-1">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {user?.displayName}
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">{user?.displayName}</h2>
             <p className="text-gray-600 flex items-center justify-center md:justify-start gap-2">
               <FaEnvelope /> {user?.email}
             </p>
@@ -113,21 +113,13 @@ const Profile = () => {
             icon={<FaRegUser className="text-4xl text-green-500 mx-auto mb-3" />}
             title="Role"
             description="Account Type"
-            value={
-              <span
-                className={`text-2xl font-bold ${
-                  dbRole === "admin" ? "text-purple-600" : "text-green-600"
-                }`}
-              >
-                {dbRole === "admin" ? "Admin" : "User"}
-              </span>
-            }
+            value={<span className="text-black font-bold text-2xl">{dbRole === "admin" ? "Admin" : "User"}</span>}
           />
         </div>
 
         {/* About */}
         <div className="bg-white rounded-3xl shadow-lg p-8 mt-10">
-          <h3 className="text-2xl font-bold mb-4">About Me</h3>
+          <h3 className="text-2xl text-black font-bold mb-4">About Me</h3>
           <p className="text-gray-700">
             I believe in reducing food waste and helping people by sharing surplus
             food through PlateShare.
@@ -138,15 +130,14 @@ const Profile = () => {
   );
 };
 
+// StatCard Component
 const StatCard = ({ icon, title, description, value }) => (
   <div className="bg-white rounded-2xl shadow-md p-6 text-center">
     {icon}
-    <h3 className="text-2xl font-bold">{title}</h3>
+    <h3 className="text-2xl font-bold text-black">{title}</h3>
     <p className="text-gray-600 text-sm">{description}</p>
-    <div className="mt-3">{value}</div>
+    <div className="mt-3 text-black text-3xl font-bold">{value}</div>
   </div>
 );
 
 export default Profile;
-
-

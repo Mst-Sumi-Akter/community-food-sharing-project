@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import Spinner from "../components/Spinner";
+import toast, { Toaster } from "react-hot-toast";
 
 /* -------------------- MAIN COMPONENT -------------------- */
 const FoodDetails = () => {
@@ -11,6 +12,9 @@ const FoodDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Helper to calculate Expiry Progress
   const calculateExpiryHealth = (expireDateStr) => {
     if (!expireDateStr) return 0;
@@ -18,17 +22,18 @@ const FoodDetails = () => {
     const expire = new Date(expireDateStr);
     const diffTime = expire - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // Logic: >7 days = 100%, 0 days = 0%. Clamped between 0-100.
     if (diffDays <= 0) return 0;
     if (diffDays >= 7) return 100;
     return Math.round((diffDays / 7) * 100);
   };
 
+  // Fetch food details
   useEffect(() => {
     const fetchFood = async () => {
       try {
-        const res = await fetch(`https://community-food-sharing-server-iota.vercel.app/foods/${id}`);
+        const res = await fetch(
+          `https://community-food-sharing-server-iota.vercel.app/foods/${id}`
+        );
         if (!res.ok) throw new Error("Unable to load food details");
         setFood(await res.json());
       } catch (err) {
@@ -40,34 +45,41 @@ const FoodDetails = () => {
     fetchFood();
   }, [id]);
 
-  /* Redirect hooks */
-  const navigate = useNavigate();
-  const location = useLocation();
-
+  // Request food
   const handleRequestFood = async () => {
     if (!user) {
       return navigate("/login", { state: { from: location } });
     }
 
-    const res = await fetch(
-      `https://community-food-sharing-server-iota.vercel.app/foods/${id}/request`,
-      {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email }),
-      }
-    );
+    try {
+      const res = await fetch(
+        `https://community-food-sharing-server-iota.vercel.app/foods/${id}/request`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email }),
+        }
+      );
 
-    const result = await res.json();
-    if (result.modifiedCount > 0) {
-      setFood({ ...food, food_status: "Requested" });
+      const result = await res.json();
+
+      if (result.modifiedCount > 0) {
+        setFood({ ...food, food_status: "Requested", requested_by_email: user.email });
+        toast.success("Food requested successfully! ");
+      } else {
+        toast.error("Unable to request this food. ");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again!");
     }
   };
 
   if (loading) return <Spinner />;
-  if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
+  if (error)
+    return <p className="text-center text-red-500 mt-10">{error}</p>;
 
-  // Derived Metrics
+  // Derived metrics
   const availabilityPercent = food.food_status === "Available" ? 100 : 0;
 
   let requestProgress = 15; // Base level for "Registered"
@@ -76,9 +88,11 @@ const FoodDetails = () => {
 
   const expiryHealth = calculateExpiryHealth(food.expire_date);
 
-
   return (
     <main className="bg-gray-50 min-h-screen pb-20">
+      {/* Toaster for notifications */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       {/* HERO */}
       <div className="relative h-[420px] ">
         <img
@@ -89,10 +103,11 @@ const FoodDetails = () => {
         <div className="absolute inset-0 bg-black/50" />
         <div className="absolute bottom-8 left-8 text-white">
           <span
-            className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-3 ${food.food_status === "Requested"
-              ? "bg-gray-500"
-              : "bg-emerald-600"
-              }`}
+            className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-3 ${
+              food.food_status === "Requested"
+                ? "bg-gray-500 text-black" // ← black text for Requested
+                : "bg-emerald-600 text-white" // ← white text for other statuses
+            }`}
           >
             {food.food_status}
           </span>
@@ -137,17 +152,25 @@ const FoodDetails = () => {
 
           <button
             onClick={handleRequestFood}
-            disabled={food.food_status === "Approved" || (food.food_status === "Requested" && food.requested_by_email === user?.email)}
-            className={`w-full py-4 rounded-xl text-lg font-semibold transition ${food.food_status === "Approved" || (food.food_status === "Requested" && food.requested_by_email === user?.email)
-              ? "bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300 cursor-not-allowed"
-              : "bg-gradient-to-r from-[#ff8a0c] to-[#07a0e3] text-white hover:shadow-lg"
-              }`}
+            disabled={
+              food.food_status === "Approved" ||
+              (food.food_status === "Requested" &&
+                food.requested_by_email === user?.email)
+            }
+            className={`w-full py-4 rounded-xl text-lg font-semibold transition ${
+              food.food_status === "Approved" ||
+              (food.food_status === "Requested" &&
+                food.requested_by_email === user?.email)
+                ? "bg-gray-300 dark:bg-gray-600 text-black cursor-not-allowed"
+                : "bg-gradient-to-r from-[#ff8a0c] to-[#07a0e3] text-white hover:shadow-lg"
+            }`}
           >
             {food.food_status === "Approved"
               ? "Not Available"
-              : food.food_status === "Requested" && food.requested_by_email === user?.email
-                ? "You Requested This"
-                : "Request This Food"}
+              : food.food_status === "Requested" &&
+                food.requested_by_email === user?.email
+              ? "You Requested This"
+              : "Request This Food"}
           </button>
 
           {!user && (
@@ -162,7 +185,7 @@ const FoodDetails = () => {
         </div>
       </div>
 
-      {/* -------------------- ANIMATED DASHBOARD (Restored & Functional) -------------------- */}
+      {/* -------------------- ANIMATED DASHBOARD -------------------- */}
       <div className="max-w-6xl mx-auto px-4 mt-24">
         <div className="bg-white border rounded-3xl shadow-lg p-10">
           {/* Header */}
@@ -199,12 +222,15 @@ const FoodDetails = () => {
                     className="relative z-10 flex flex-col items-center"
                   >
                     <div
-                      className={`w-6 h-6 rounded-full border-2 transition-all duration-500 ${i <= activeIndex
-                        ? "bg-gradient-to-r from-orange-500 to-pink-500 border-transparent"
-                        : "bg-white border-gray-300"
-                        }`}
+                      className={`w-6 h-6 rounded-full border-2 transition-all duration-500 ${
+                        i <= activeIndex
+                          ? "bg-gradient-to-r from-orange-500 to-pink-500 border-transparent"
+                          : "bg-white border-gray-300"
+                      }`}
                     />
-                    <span className="mt-3 text-xs text-gray-600 dark:text-gray-300">{step}</span>
+                    <span className="mt-3 text-xs text-gray-600 dark:text-gray-300">
+                      {step}
+                    </span>
                   </div>
                 );
               })}
@@ -218,7 +244,9 @@ const FoodDetails = () => {
               value={food.food_status}
               targetPercent={availabilityPercent}
               color="bg-emerald-500"
-              subText={availabilityPercent === 100 ? "Ready for Pickup" : "Currently Engaged"}
+              subText={
+                availabilityPercent === 100 ? "Ready for Pickup" : "Currently Engaged"
+              }
             />
 
             <AnimatedMetric
@@ -264,9 +292,8 @@ const InfoGrid = ({ food }) => (
   </div>
 );
 
-const Info = ({ label, value, icon }) => (
+const Info = ({ label, value }) => (
   <div className="flex items-start gap-4">
-    {/* Optional: Add icons if passed, currently simple text */}
     <div>
       <p className="text-sm text-gray-500">{label}</p>
       <p className="font-medium text-gray-800">{value}</p>
@@ -280,7 +307,7 @@ const AnimatedMetric = ({ title, value, targetPercent, color, subText }) => {
 
   useEffect(() => {
     let start = 0;
-    const duration = 1000; // 1s animation
+    const duration = 1000;
     const stepTime = 20;
     const increment = (targetPercent / duration) * stepTime;
 
@@ -317,5 +344,3 @@ const AnimatedMetric = ({ title, value, targetPercent, color, subText }) => {
 };
 
 export default FoodDetails;
-
-
