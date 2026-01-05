@@ -1,8 +1,8 @@
 #  project - Community Food Sharing Platform
 
-###  Live Site:   https://shiny-capybara-90abf6.netlify.app/  
-###  Server (API):
-https://community-food-sharing-server-iota.vercel.app/
+###  Live Site:   https://illustrious-eclair-c0ec45.netlify.app/  
+###  Server (API): https://community-food-sharing-server-iota.vercel.app/
+
 
 ---
 
@@ -14,30 +14,102 @@ Users can share surplus food to reduce waste, and others can browse and request 
 This project focuses on **community engagement**, **real-time food availability**, and **user-friendly interaction** using secure Firebase authentication and a responsive UI.
 
 ---
+✨ Features
+🔐 User Authentication
 
-#  Features
+Secure authentication using Firebase Authentication
 
--  **Firebase Authentication**
-  - Email/Password and Google login system.
-  - Password validation and success/error toasts.
+Login and registration with Email/Password and Google Sign-In
 
--  **Dynamic Food Management (CRUD)**
-  - Add, Update, Delete, and View foods in real-time.
-  - Uses MongoDB for storing all food and user data.
+Real-time authentication state handling
 
--  **Private Routes for Authenticated Users**
-  - Secure access to Add Food, Manage My Foods, and My Requests pages.
+User-friendly success and error notifications
 
--  **Food Request System**
-  - Request available foods directly from the “Food Details” page.
+👤 User Profile & Role Management
 
--  **Dynamic & Responsive UI**
-  - Built with Tailwind CSS and React Router.
-  - Mobile-friendly, clean, and professional design.
+Automatically sync authenticated users with MongoDB
 
--  **Loading & Error Handling**
-  - Spinner while fetching data.
-  - Custom 404 Error Page with animation and Back to Home button.
+Store and manage user roles (Admin / User)
+
+Profile page displays:
+
+User name, email, and profile photo
+
+User role (Admin or User)
+
+Total foods shared by the user
+
+Total foods requested by the user
+
+🍽️ Food Sharing System
+
+Users can add surplus food items
+
+Edit and delete their own shared foods
+
+Food status management:
+
+Available
+
+Requested
+
+📥 Food Request System
+
+Users can request available food items
+
+Food status updates automatically after a request
+
+Users can view all their requested foods in one place
+
+🔒 Private & Protected Routes
+
+Access control for authenticated users only
+
+Protected routes include:
+
+Add Food
+
+Manage My Foods
+
+My Requests
+
+Food Details
+
+🛠️ Role-Based Access Control (RBAC)
+
+Admin-only permissions for:
+
+Deleting foods
+
+Updating foods
+
+Viewing all users (backend protected)
+
+Prevents unauthorized access using server-side verification
+
+📱 Responsive & Modern UI
+
+Fully responsive design using Tailwind CSS
+
+Optimized for mobile, tablet, and desktop devices
+
+Clean, modern, and user-friendly interface
+
+⏳ Loading & Error Handling
+
+Loading spinner displayed during data fetching
+
+Graceful error handling for server and network issues
+
+Custom 404 Not Found error page with navigation support
+
+⚡ Performance & User Experience
+
+Smooth navigation using React Router
+
+Animated count-up statistics on the profile page
+
+Optimized API calls and efficient state management
 
 ---
 
@@ -48,13 +120,13 @@ This project focuses on **community engagement**, **real-time food availability*
 - `/available-foods` → All available foods
 - `/login` → User login page
 - `/register` → New user registration
-
+- `/food/:id` → Food details and Request button
 ##  Private Routes
 - `/add-food` → Add new food
 - `/manage-foods` → Manage user’s own added foods
 - `/update-food/:id` → Update food details
 - `/my-requests` → View requested foods
-- `/food/:id` → Food details and Request button
+
 
 ---
 
