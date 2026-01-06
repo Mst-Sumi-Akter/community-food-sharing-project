@@ -87,6 +87,13 @@ Viewing all users (backend protected)
 
 Prevents unauthorized access using server-side verification
 
+-------------
+Admin email : admin@gmail.com
+Admin pass : 123456789
+User email :am@gmail.com
+User pass : 12345678
+------------------
+
 📱 Responsive & Modern UI
 
 Fully responsive design using Tailwind CSS
